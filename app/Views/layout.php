@@ -43,6 +43,8 @@
     
     <script src="<?php echo base_url('assets/js/jquery-3.6.4.min.js') ?>"></script>
     <script src="<?php echo base_url('assets/js/bootstrap.min.js') ?>"></script>
+    <script src="<?php echo base_url('assets/js/jquery.validate.min.js') ?>"></script>
+    <script src="<?php echo base_url('assets/js/custom/app.js') ?>"></script>
     <!-- Adding any additional javascript file passed by the Controller -->
     <?php if(isset($additionalScripts)){
       foreach($additionalScripts as $additionalScript){
