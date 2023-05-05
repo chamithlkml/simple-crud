@@ -13,7 +13,8 @@ class User extends Migration
             'id' => [
                 'type' => 'INT',
                 'unsigned' => true,
-                'auto_increment' => true
+                'auto_increment' => true,
+                'null' => false
             ],
             'firstname' => [
                 'type' => 'VARCHAR',
@@ -39,12 +40,11 @@ class User extends Migration
                 'null' => false,
                 'default' => null,
             ],
-            'userename' => [
+            'username' => [
                 'type' => 'VARCHAR',
                 'constraint' => '255',
                 'unique'     => true,
-                'null' => false,
-                'default' => null,
+                'null' => false
             ],
             'password' => [
                 'type' => 'VARCHAR',

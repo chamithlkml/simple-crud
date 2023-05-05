@@ -6,7 +6,7 @@ COPY . .
 
 RUN apt-get update
 RUN apt-get install -y libicu-dev
-RUN docker-php-ext-install intl
+RUN docker-php-ext-install intl mysqli pdo
 RUN a2dissite 000-default
 RUN a2enmod rewrite
 COPY docker/apache/cf_partners.conf /etc/apache2/sites-enabled/cf_partners.conf

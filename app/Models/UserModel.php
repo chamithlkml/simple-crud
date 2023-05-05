@@ -4,14 +4,14 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class User extends Model
+class UserModel extends Model
 {
     protected $DBGroup          = 'default';
     protected $table            = 'users';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $useSoftDeletes   = true;
-    protected $allowedFields    = ['firstname', 'lastname', 'email', 'mobile', 'username', 'password'];
+    protected $allowedFields    = ['firstname', 'lastname', 'email', 'mobile', 'username', 'password', 'role', 'salt'];
 
     // Dates
     protected $useTimestamps = true;
@@ -22,13 +22,12 @@ class User extends Model
 
     // Validation
     protected $validationRules      = [
-        'firstname' => 'required|alpha_numeric|trim',
-        'lastname' => 'required|alpha_numeric|trim',
-        'email' => 'required|valid_email|is_unique[users.email]',
-        'mobile' => 'required|min_length[11]|trim',
-        'username' => 'required|alpha_numeric',
-        'password' => 'required|alpha_numeric|min_length[6]',
-        'salt' => 'required',
+        'firstname' => 'required|min_length[1]|max_length[64]',
+        'lastname' => 'required|min_length[1]|max_length[64]',
+        'email' => 'required|valid_email',
+        'mobile' => 'required|min_length[11]|max_length[11]',
+        'username' => 'required|min_length[6]|is_unique[users.username]',
+        'password' => 'required|min_length[6]',
         'role' => 'required'
     ];
 
@@ -40,6 +39,7 @@ class User extends Model
      */
     protected function hashPassword(array $data): array
     {
+
         if(! isset($data['data']['password'])){
             return $data;
         }
