@@ -12,6 +12,32 @@ class UserLibrary{
       $this->userModel = new UserModel();
   }
 
+  /**
+   * Return user object searched by id. Null is returned if not found
+   *
+   * @param integer $id
+   */
+  public function getUserById(int $id)
+  {
+    return $this->userModel->builder()
+            ->where('role', 'user')
+            ->where('id', $id)
+            ->get()->getRow();
+  }
+
+  /**
+   * Delete user object
+   *
+   * @param integer $id
+   * @return void
+   */
+  public function deleteUser(int $id): void
+  {
+    $this->userModel->builder()
+        ->where('id', $id)
+        ->delete();
+  }
+
   public function getDataTableResponse(int $limit = 10, int $offset = 0, string $searchTerm = '',int $draw = 1): array
   {
     # Retrieve total number of users in a separate builder
@@ -40,6 +66,7 @@ class UserLibrary{
 
     }
 
+    $builder->where('deleted_at is NULL');
     $builder->limit($limit, $offset);
     $users = $builder->get()->getResult();
 

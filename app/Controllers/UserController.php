@@ -11,7 +11,6 @@ class UserController extends BaseController
 
     public function index(): object
     {
-      log_message('info', print_r($_GET, true));
 
       $search = $this->request->getVar('search');
       $searchTerm = is_null($search) ? '' : $search['value'];
@@ -23,8 +22,6 @@ class UserController extends BaseController
         $searchTerm,
         intval($this->request->getVar('draw'))
       );
-
-      log_message('info', print_r($dataTablesResponse, true));
 
       return $this->response->setJSON($dataTablesResponse);
     }
@@ -92,13 +89,41 @@ class UserController extends BaseController
             $data['role'] = 'user';
             $userModel = new UserModel();
             $savedUserId = $userModel->insert($data);
+            $session = session();
             
             if(is_int($savedUserId)){
-                $session = session();
                 $session->setFlashdata('success', 'User added successfully');
 
                 return redirect()->to(base_url('users/list'));
+            }else{
+                $session->setFlashdata('error', 'User not inserted. Please try again.');
+
+                return redirect()->to(base_url('users/create'));
             }
         }
+    }
+
+    public function delete($id)
+    {
+        $userLibrary = new UserLibrary();
+        $foundUser = $userLibrary->getUserById($id);
+        
+        $session = session();
+
+        if($foundUser){
+            $userLibrary->deleteUser($id);
+            
+            $deletedUser = $userLibrary->getUserById($id);
+
+            if(! isset($deletedUser)){
+                $session->setFlashdata('success', 'User is deleted successfully');
+            }else{
+                $session->setFlashdata('error', 'User not deleted. Please try again.');
+            }
+        }else{
+            $session->setFlashdata('error', 'User not found. Please try again.');
+        }
+
+        return redirect()->to(base_url('users/list'));
     }
 }

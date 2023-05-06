@@ -25,3 +25,6 @@
     </div>
   </div>
 </div>
+
+<!-- Confirmation modal -->
+<?= $this->include('partials/confirmation_modal') ?>
