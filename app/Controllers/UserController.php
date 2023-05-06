@@ -9,29 +9,39 @@ class UserController extends BaseController
 {
     protected $helpers = ['form'];
 
+    /**
+     * Returns the Json object required for users Datatable
+     *
+     * @return object
+     */
     public function index(): object
     {
-      $search = $this->request->getVar('search');
-      $searchTerm = is_null($search) ? '' : $search['value'];
+        $search = $this->request->getVar('search');
+        $searchTerm = is_null($search) ? '' : $search['value'];
 
-      $userLibrary = new UserLibrary();
-      $orderDetails = $this->request->getVar('order');
+        $userLibrary = new UserLibrary();
+        $orderDetails = $this->request->getVar('order');
 
-      $dataTablesResponse = $userLibrary->getDataTableResponse(
-        intval($this->request->getVar('length')),
-        intval($this->request->getVar('start')),
-        $searchTerm,
-        intval($this->request->getVar('draw')),
-        $orderDetails[0]['column'],
-        $orderDetails[0]['dir']
-      );
+        $dataTablesResponse = $userLibrary->getDataTableResponse(
+            intval($this->request->getVar('length')),
+            intval($this->request->getVar('start')),
+            $searchTerm,
+            intval($this->request->getVar('draw')),
+            $orderDetails[0]['column'],
+            $orderDetails[0]['dir']
+        );
 
-      return $this->response->setJSON($dataTablesResponse);
+        return $this->response->setJSON($dataTablesResponse);
     }
 
+    /**
+     * Loads the users list page
+     *
+     * @return string
+     */
     public function list(): string
     {
-      return view('layout', array(
+        return view('layout', array(
           'page' => 'users/list',
           'additionalStylesheets' => [
               base_url('assets/css/jquery.dataTables.css')
@@ -40,9 +50,14 @@ class UserController extends BaseController
               base_url('assets/js/jquery.dataTables.js'),
               base_url('assets/js/custom/user.js')
           ]
-      ));
+        ));
     }
 
+    /**
+     * Loads the user create form
+     *
+     * @return string
+     */
     public function create(): string
     {
         return view('layout', array(
@@ -53,6 +68,11 @@ class UserController extends BaseController
         ));
     }
 
+    /**
+     * Insert new user object
+     *
+     * @return void
+     */
     public function store()
     {
         $userLibrary = new UserLibrary();
@@ -69,7 +89,6 @@ class UserController extends BaseController
         $validationErrors = $userLibrary->getValidationErrors($data, array_keys($data));
 
         if (count($validationErrors) > 0) {
-
             unset($data['password']);
 
             return view('layout', array(
@@ -82,12 +101,12 @@ class UserController extends BaseController
         } else {
             $savedUserId = $userLibrary->saveUser($data);
             $session = session();
-            
-            if(is_int($savedUserId)){
+
+            if (is_int($savedUserId)) {
                 $session->setFlashdata('success', 'User added successfully');
 
                 return redirect()->to(base_url('users/list'));
-            }else{
+            } else {
                 $session->setFlashdata('error', 'User not inserted. Please try again.');
 
                 return redirect()->to(base_url('users/create'));
@@ -95,93 +114,110 @@ class UserController extends BaseController
         }
     }
 
+    /**
+     * Delete a given user if exists
+     *
+     * @param [type] $id
+     * @return void
+     */
     public function delete($id)
     {
         $userLibrary = new UserLibrary();
         $foundUser = $userLibrary->getUserById($id);
         $session = session();
 
-        if($foundUser){
+        if ($foundUser) {
             $userLibrary->deleteUser($id);
-            
+
             $deletedUser = $userLibrary->getUserById($id);
 
-            if(! isset($deletedUser)){
+            if (! isset($deletedUser)) {
                 $session->setFlashdata('success', 'User is deleted successfully');
-            }else{
+            } else {
                 $session->setFlashdata('error', 'User not deleted. Please try again.');
             }
-        }else{
+        } else {
             $session->setFlashdata('error', 'User not found. Please try again.');
         }
 
         return redirect()->to(base_url('users/list'));
     }
 
+    /**
+     * Loading the update user page
+     *
+     * @param [type] $id
+     * @return void
+     */
     public function update($id)
     {
         $userLibrary = new UserLibrary();
         $foundUser = $userLibrary->getUserById($id);
         $session = session();
 
-        if(! isset($foundUser)){
+        if (! isset($foundUser)) {
             $session->setFlashdata('error', 'User not found. Please try again.');
-            
+
             return redirect()->to(base_url('users/list'));
-          }else{
+        } else {
             return view('layout', array(
-                'page' => 'users/update',
-                'action' => base_url("users/{$id}/put"),
-                'formId' => 'userForm',
-                'data' => $foundUser
+              'page' => 'users/update',
+              'action' => base_url("users/{$id}/put"),
+              'formId' => 'userForm',
+              'data' => $foundUser
             ));
         }
     }
 
+    /**
+     * Update a given user with provided data
+     *
+     * @param [type] $id
+     * @return void
+     */
     public function put($id)
     {
-      $userLibrary = new UserLibrary();
-      $session = session();
-      $foundUser = $userLibrary->getUserById($id);
+        $userLibrary = new UserLibrary();
+        $session = session();
+        $foundUser = $userLibrary->getUserById($id);
 
-      if(! isset($foundUser)){
-        $session->setFlashdata('error', 'User not found. Please try again.');
-        return redirect()->to(base_url('users/list'));
-      }else{
-        $data = [
-          'firstname' => $this->request->getPost('firstname'),
-          'lastname' => $this->request->getPost('lastname'),
-          'email' => $this->request->getPost('email'),
-          'mobile' => $this->request->getPost('mobile'),
-          'username' => $this->request->getPost('username'),
-          'password' => $this->request->getPost('password')
-        ];
+        if (! isset($foundUser)) {
+            $session->setFlashdata('error', 'User not found. Please try again.');
+            return redirect()->to(base_url('users/list'));
+        } else {
+            $data = [
+            'firstname' => $this->request->getPost('firstname'),
+            'lastname' => $this->request->getPost('lastname'),
+            'email' => $this->request->getPost('email'),
+            'mobile' => $this->request->getPost('mobile'),
+            'username' => $this->request->getPost('username'),
+            'password' => $this->request->getPost('password')
+            ];
 
-        # Since username field is validated for uniqueness
-        if($foundUser['username'] == $data['username']){
-          unset($data['username']);
-        }
+          # Since username field is validated for uniqueness
+            if ($foundUser['username'] == $data['username']) {
+                unset($data['username']);
+            }
 
-        $validationErrors = $userLibrary->getValidationErrors($data, array_keys($data));
+            $validationErrors = $userLibrary->getValidationErrors($data, array_keys($data));
 
-        if(count($validationErrors) > 0){
-          unset($data['password']);
+            if (count($validationErrors) > 0) {
+                unset($data['password']);
 
-          return view('layout', array(
+                return view('layout', array(
                 'page' => 'users/update',
                 'action' => base_url("users/{$id}/put"),
                 'formId' => 'userForm',
                 'errors' => $validationErrors,
                 'data' => $data
-          ));
-        }else{
-          $data['id'] = $id;
-          $userLibrary->saveUser($data);
-          $session->setFlashdata('success', 'User updated successfully');
-          
-          return redirect()->to(base_url('users/list'));
-        }
+                ));
+            } else {
+                $data['id'] = $id;
+                $userLibrary->saveUser($data);
+                $session->setFlashdata('success', 'User updated successfully');
 
-      }
+                return redirect()->to(base_url('users/list'));
+            }
+        }
     }
 }
