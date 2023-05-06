@@ -3,32 +3,58 @@
 namespace App\Controllers;
 
 use App\Models\UserModel;
+use App\Libraries\UserLibrary;
 
 class UserController extends BaseController
 {
     protected $helpers = ['form'];
 
-    public function index(){
-        return view('layout', array(
-            'page' => 'users/index'
-        ));
+    public function index(): object
+    {
+      log_message('info', print_r($_GET, true));
+
+      $search = $this->request->getVar('search');
+      $searchTerm = is_null($search) ? '' : $search['value'];
+
+      $userLibrary = new UserLibrary();
+      $dataTablesResponse = $userLibrary->getDataTableResponse(
+        intval($this->request->getVar('length')),
+        intval($this->request->getVar('start')),
+        $searchTerm,
+        intval($this->request->getVar('draw'))
+      );
+
+      log_message('info', print_r($dataTablesResponse, true));
+
+      return $this->response->setJSON($dataTablesResponse);
     }
 
-    public function create()
+    public function list(): string
     {
+      return view('layout', array(
+          'page' => 'users/list',
+          'additionalStylesheets' => [
+              base_url('assets/css/jquery.dataTables.css')
+          ],
+          'additionalScripts' => [
+              base_url('assets/js/jquery.dataTables.js'),
+              base_url('assets/js/custom/user.js')
+          ]
+      ));
+    }
 
+    public function create(): string
+    {
         return view('layout', array(
             'page' => 'users/create',
-            'action' => 'users/store',
+            'action' => base_url('users/store'),
             'formId' => 'userForm',
-            'data' => array(),
-            'additionalScripts' => [
-                base_url('assets/js/custom/user.js')
-            ]
+            'data' => array()
         ));
     }
 
-    public function store(){
+    public function store()
+    {
 
         $data = [
             'firstname' => $this->request->getPost('firstname'),
@@ -57,10 +83,7 @@ class UserController extends BaseController
                 'action' => 'users/store',
                 'formId' => 'userForm',
                 'errors' => $this->validator->getErrors(),
-                'data' => $data,
-                'additionalScripts' => [
-                    base_url('assets/js/custom/user.js')
-                ]
+                'data' => $data
             ));
         } else {
 
@@ -74,7 +97,7 @@ class UserController extends BaseController
                 $session = session();
                 $session->setFlashdata('success', 'User added successfully');
 
-                return redirect()->to('users');
+                return redirect()->to(base_url('users/list'));
             }
         }
     }

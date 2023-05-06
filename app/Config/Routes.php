@@ -32,6 +32,7 @@ $routes->set404Override();
 $routes->get('/', 'Home::index');
 $routes->get('users/create', 'UserController::create');
 $routes->post('users/store', 'UserController::store');
+$routes->get('users/list', 'UserController::list');
 $routes->get('users', 'UserController::index');
 /*
  * --------------------------------------------------------------------

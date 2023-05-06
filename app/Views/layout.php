@@ -16,7 +16,7 @@
   </head>
   <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-      <a class="navbar-brand" href="#">Sample App</a>
+      <a class="navbar-brand" href="<?= base_url('/') ?>">Sample App</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -26,7 +26,7 @@
             <a class="nav-link" href="/users/create">Create</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Read</a>
+            <a class="nav-link" href="/users/list">List</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="#">Update</a>
@@ -37,6 +37,8 @@
         </ul>
       </div>
     </nav>
+
+    <!-- Alert message -->
     <div class="container">
       <div class="row">
         <div class="col-md-2"></div>
