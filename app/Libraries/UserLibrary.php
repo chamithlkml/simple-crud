@@ -4,13 +4,14 @@ namespace App\Libraries;
 
 use App\Models\UserModel;
 
-class UserLibrary{
-  protected $userModel;
+class UserLibrary
+{
+    protected $userModel;
 
-  public function __construct()
-  {
-      $this->userModel = new UserModel();
-  }
+    public function __construct()
+    {
+        $this->userModel = new UserModel();
+    }
 
   /**
    * Return an array of validation errors
@@ -19,29 +20,28 @@ class UserLibrary{
    * @param array $validatingFields
    * @return array
    */
-  public function getValidationErrors($data, $validatingFields = []): array
-  {
-    $validation =  \Config\Services::validation();
-    $checkRules = [];
+    public function getValidationErrors($data, $validatingFields = []): array
+    {
+        $validation =  \Config\Services::validation();
+        $checkRules = [];
 
-    # Filter out rules for $validatingFields only
-    foreach($validatingFields as $key){
-      
-      if(isset($this->userModel->validationRules[$key])){
-        $checkRules[$key] = $this->userModel->validationRules[$key];
-      }
+      # Filter out rules for $validatingFields only
+        foreach ($validatingFields as $key) {
+            if (isset($this->userModel->validationRules[$key])) {
+                $checkRules[$key] = $this->userModel->validationRules[$key];
+            }
+        }
+
+        $validation->setRules($checkRules);
+
+        $validationErrors = [];
+
+        if (! $validation->run($data)) {
+            $validationErrors = $validation->getErrors();
+        }
+
+        return $validationErrors;
     }
-
-    $validation->setRules($checkRules);
-
-    $validationErrors = [];
-
-    if(! $validation->run($data)){
-      $validationErrors = $validation->getErrors();
-    }
-
-    return $validationErrors;
-  }
 
   /**
    * Insert or Update user data depending on the existance of id field
@@ -49,25 +49,25 @@ class UserLibrary{
    * @param array $data
    * @return integer
    */
-  public function saveUser(array $data): int
-  {
-    return $this->userModel->save($data);
-  }
+    public function saveUser(array $data): int
+    {
+        return $this->userModel->save($data);
+    }
 
   /**
    * Return user object searched by id. Null is returned if not found
    *
    * @param integer $id
    */
-  public function getUserById(int $id)
-  {
-    return $this->userModel
+    public function getUserById(int $id)
+    {
+        return $this->userModel
             ->select('id, firstname, lastname, email, mobile, username')
             ->where('role', 'user')
             ->where('id', $id)
             ->where('deleted_at IS NULL')
             ->get()->getRowArray();
-  }
+    }
 
   /**
    * Delete user object
@@ -75,35 +75,52 @@ class UserLibrary{
    * @param integer $id
    * @return void
    */
-  public function deleteUser(int $id): void
-  {
-    $this->userModel->delete($id);
-  }
+    public function deleteUser(int $id): void
+    {
+        $this->userModel->delete($id);
+    }
 
-  public function getDataTableResponse(int $limit = 10, int $offset = 0, string $searchTerm = '', int $draw = 1, int $orderColumnIndex, string $orderDirection): array
-  {
-    # Retrieve total number of users in a separate builder
-    $recordsTotalRow = $this->userModel->db->table('users')
+    /**
+     * Returns the data object expected by the Datatables ajax call
+     *
+     * @param integer $limit
+     * @param integer $offset
+     * @param string $searchTerm
+     * @param integer $draw
+     * @param integer $orderColumnIndex
+     * @param string $orderDirection
+     * @return array
+     */
+    public function getDataTableResponse(
+        int $limit = 10,
+        int $offset = 0,
+        string $searchTerm = '',
+        int $draw = 1,
+        int $orderColumnIndex = 0,
+        string $orderDirection = 'asc'
+    ): array {
+      # Retrieve total number of users in a separate builder
+        $recordsTotalRow = $this->userModel->db->table('users')
                         ->selectCount('*', 'num')
                         ->get()->getRowArray();
 
-    $recordsFilteredRow = $recordsTotalRow;
+        $recordsFilteredRow = $recordsTotalRow;
 
-    // main query builder
-    $builder = $this->userModel->builder()
+      // main query builder
+        $builder = $this->userModel->builder()
                 ->select(
-                  'id, firstname, lastname, email, mobile, username'
+                    'id, firstname, lastname, email, mobile, username'
                 );
 
-    if($searchTerm != ''){
-      $builder->like('firstname', $searchTerm);
-      $builder->orLike('lastname', $searchTerm);
-      $builder->orLike('email', $searchTerm);
-      $builder->orLike('username', $searchTerm);
-      $builder->orLike('mobile', $searchTerm);
+        if ($searchTerm != '') {
+            $builder->like('firstname', $searchTerm);
+            $builder->orLike('lastname', $searchTerm);
+            $builder->orLike('email', $searchTerm);
+            $builder->orLike('username', $searchTerm);
+            $builder->orLike('mobile', $searchTerm);
 
-      # Retrieving filtered count in a separate builder
-      $recordsFilteredRow = $this->userModel->db->table('users')
+          # Retrieving filtered count in a separate builder
+            $recordsFilteredRow = $this->userModel->db->table('users')
                                 ->like('firstname', $searchTerm)
                                 ->orLike('lastname', $searchTerm)
                                 ->orLike('email', $searchTerm)
@@ -111,42 +128,46 @@ class UserLibrary{
                                 ->orLike('mobile', $searchTerm)
                                 ->selectCount('*', 'num')
                                 ->get()->getRowArray();
+        }
 
+        $builder->where('deleted_at is NULL');
+
+      # columns shown in the Datatable following the same order from left to right
+        $columns = ['firstname', 'lastname', 'email', 'mobile', 'username'];
+
+        $orderColumn = $columns[$orderColumnIndex];
+
+        if (isset($orderColumn)) {
+            $builder->orderBy($orderColumn, strtoupper($orderDirection));
+        }
+
+        $builder->limit($limit, $offset);
+        $users = $builder->get()->getResult();
+
+        foreach ($users as $user) {
+            $user->action = $this->getActionButtons($user->id);
+            unset($user->id);
+        }
+
+        $response = [
+        'draw' => $draw,
+        'recordsTotal' => $recordsTotalRow['num'],
+        'recordsFiltered' => $recordsFilteredRow['num'],
+        'data' => $users
+        ];
+
+        return $response;
     }
 
-    $builder->where('deleted_at is NULL');
-
-    # columns shown in the Datatable following the same order from left to right
-    $columns = ['firstname', 'lastname', 'email', 'mobile', 'username'];
-
-    $orderColumn = $columns[$orderColumnIndex];
-
-    if(isset($orderColumn)){
-      $builder->orderBy($orderColumn, strtoupper($orderDirection));
+    private function getActionButtons(int $id): string
+    {
+        return '<a href="/users/' . $id . '/update">' .
+            form_button('edit', 'Edit', ['class' => 'btn btn-outline-primary btn-sm']) .
+          '</a>' .
+          form_button(
+              'edit',
+              'Delete',
+              ['class' => 'btn btn-outline-danger btn-sm delete-user-btn', 'data-user-id' => $id]
+          );
     }
-
-    $builder->limit($limit, $offset);
-    $users = $builder->get()->getResult();
-
-    foreach($users as $user){
-      $user->action = $this->getActionButtons($user->id);
-      unset($user->id);
-    }
-
-    $response = [
-      'draw' => $draw,
-      'recordsTotal' => $recordsTotalRow['num'],
-      'recordsFiltered' => $recordsFilteredRow['num'],
-      'data' => $users
-    ];
-
-    return $response;
-  }
-
-  private function getActionButtons(int $id): string
-  {
-    return '<a href="/users/'. $id .'/update">' . form_button('edit', 'Edit', ['class' => 'btn btn-outline-primary btn-sm']) .'</a>' .
-      form_button('edit', 'Delete', ['class' => 'btn btn-outline-danger btn-sm delete-user-btn', 'data-user-id' => $id]);
-  }
-
 }
