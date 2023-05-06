@@ -52,26 +52,20 @@ class UserController extends BaseController
 
     public function store()
     {
-
+        $userLibrary = new UserLibrary();
         $data = [
             'firstname' => $this->request->getPost('firstname'),
             'lastname' => $this->request->getPost('lastname'),
             'email' => $this->request->getPost('email'),
             'mobile' => $this->request->getPost('mobile'),
             'username' => $this->request->getPost('username'),
-            'password' => $this->request->getPost('password')
+            'password' => $this->request->getPost('password'),
+            'role' => 'user' # Set role as user expecting the app may have a higher role like admin
         ];
 
-        $rules = [
-            'firstname' => 'required|min_length[1]|max_length[64]',
-            'lastname' => 'required|min_length[1]|max_length[64]',
-            'email' => 'required|valid_email',
-            'mobile' => 'required|min_length[11]|max_length[11]',
-            'username' => 'required|min_length[6]|is_unique[users.username]',
-            'password' => 'required|min_length[6]',
-        ];
+        $validationErrors = $userLibrary->getValidationErrors($data, array_keys($data));
 
-        if (! $this->validateData($data, $rules)) {
+        if (count($validationErrors) > 0) {
 
             unset($data['password']);
 
@@ -79,16 +73,11 @@ class UserController extends BaseController
                 'page' => 'users/create',
                 'action' => 'users/store',
                 'formId' => 'userForm',
-                'errors' => $this->validator->getErrors(),
+                'errors' => $validationErrors,
                 'data' => $data
             ));
         } else {
-
-            # Set role as user allowing the app to add `admin` in a different
-            # controller or in a seeding
-            $data['role'] = 'user';
-            $userModel = new UserModel();
-            $savedUserId = $userModel->insert($data);
+            $savedUserId = $userLibrary->saveUser($data);
             $session = session();
             
             if(is_int($savedUserId)){
@@ -107,7 +96,6 @@ class UserController extends BaseController
     {
         $userLibrary = new UserLibrary();
         $foundUser = $userLibrary->getUserById($id);
-        
         $session = session();
 
         if($foundUser){
@@ -125,5 +113,72 @@ class UserController extends BaseController
         }
 
         return redirect()->to(base_url('users/list'));
+    }
+
+    public function update($id)
+    {
+        $userLibrary = new UserLibrary();
+        $foundUser = $userLibrary->getUserById($id);
+        $session = session();
+
+        if(! isset($foundUser)){
+            $session->setFlashdata('error', 'User not found. Please try again.');
+            
+            return redirect()->to(base_url('users/list'));
+          }else{
+            return view('layout', array(
+                'page' => 'users/update',
+                'action' => base_url("users/{$id}/put"),
+                'formId' => 'userForm',
+                'data' => $foundUser
+            ));
+        }
+    }
+
+    public function put($id)
+    {
+      $userLibrary = new UserLibrary();
+      $session = session();
+      $foundUser = $userLibrary->getUserById($id);
+
+      if(! isset($foundUser)){
+        $session->setFlashdata('error', 'User not found. Please try again.');
+        return redirect()->to(base_url('users/list'));
+      }else{
+        $data = [
+          'firstname' => $this->request->getPost('firstname'),
+          'lastname' => $this->request->getPost('lastname'),
+          'email' => $this->request->getPost('email'),
+          'mobile' => $this->request->getPost('mobile'),
+          'username' => $this->request->getPost('username'),
+          'password' => $this->request->getPost('password')
+        ];
+
+        # Since username field is validated for uniqueness
+        if($foundUser['username'] == $data['username']){
+          unset($data['username']);
+        }
+
+        $validationErrors = $userLibrary->getValidationErrors($data, array_keys($data));
+
+        if(count($validationErrors) > 0){
+          unset($data['password']);
+
+          return view('layout', array(
+                'page' => 'users/update',
+                'action' => base_url("users/{$id}/put"),
+                'formId' => 'userForm',
+                'errors' => $validationErrors,
+                'data' => $data
+          ));
+        }else{
+          $data['id'] = $id;
+          $userLibrary->saveUser($data);
+          $session->setFlashdata('success', 'User updated successfully');
+          
+          return redirect()->to(base_url('users/list'));
+        }
+
+      }
     }
 }

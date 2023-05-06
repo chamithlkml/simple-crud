@@ -35,8 +35,8 @@ class User extends Migration
                 'default' => null,
             ],
             'mobile' => [
-                'type' => 'INT',
-                'constraint' => '16',
+                'type' => 'VARCHAR',
+                'constraint' => '11',
                 'null' => false,
                 'default' => null,
             ],

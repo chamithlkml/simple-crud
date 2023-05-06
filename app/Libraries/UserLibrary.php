@@ -13,6 +13,48 @@ class UserLibrary{
   }
 
   /**
+   * Return an array of validation errors
+   *
+   * @param [type] $data
+   * @param array $validatingFields
+   * @return array
+   */
+  public function getValidationErrors($data, $validatingFields = []): array
+  {
+    $validation =  \Config\Services::validation();
+    $checkRules = [];
+
+    # Filter out rules for $validatingFields only
+    foreach($validatingFields as $key){
+      
+      if(isset($this->userModel->validationRules[$key])){
+        $checkRules[$key] = $this->userModel->validationRules[$key];
+      }
+    }
+
+    $validation->setRules($checkRules);
+
+    $validationErrors = [];
+
+    if(! $validation->run($data)){
+      $validationErrors = $validation->getErrors();
+    }
+
+    return $validationErrors;
+  }
+
+  /**
+   * Insert or Update user data depending on the existance of id field
+   *
+   * @param array $data
+   * @return integer
+   */
+  public function saveUser(array $data): int
+  {
+    return $this->userModel->save($data);
+  }
+
+  /**
    * Return user object searched by id. Null is returned if not found
    *
    * @param integer $id
@@ -20,9 +62,10 @@ class UserLibrary{
   public function getUserById(int $id)
   {
     return $this->userModel->builder()
+            ->select('id, firstname, lastname, email, mobile, username')
             ->where('role', 'user')
             ->where('id', $id)
-            ->get()->getRow();
+            ->get()->getRowArray();
   }
 
   /**
@@ -36,6 +79,11 @@ class UserLibrary{
     $this->userModel->builder()
         ->where('id', $id)
         ->delete();
+  }
+
+  public function updateUser(int $id, array $data)
+  {
+    $this->userModel->db->table('users')->update($id, $data);
   }
 
   public function getDataTableResponse(int $limit = 10, int $offset = 0, string $searchTerm = '',int $draw = 1): array
@@ -87,7 +135,7 @@ class UserLibrary{
 
   private function getActionButtons(int $id): string
   {
-    return '<a href="/users/update/'. $id .'">' . form_button('edit', 'Edit', ['class' => 'btn btn-outline-primary btn-sm']) .'</a>' .
+    return '<a href="/users/'. $id .'/update">' . form_button('edit', 'Edit', ['class' => 'btn btn-outline-primary btn-sm']) .'</a>' .
       form_button('edit', 'Delete', ['class' => 'btn btn-outline-danger btn-sm delete-user-btn', 'data-user-id' => $id]);
   }
 

@@ -34,7 +34,9 @@ $routes->get('users/create', 'UserController::create');
 $routes->post('users/store', 'UserController::store');
 $routes->get('users/list', 'UserController::list');
 $routes->get('users', 'UserController::index');
-$routes->post('/users/(:num)/delete', 'UserController::delete/$1');
+$routes->post('users/(:num)/delete', 'UserController::delete/$1');
+$routes->get('users/(:num)/update', 'UserController::update/$1');
+$routes->post('users/(:num)/put', 'UserController::put/$1');
 /*
  * --------------------------------------------------------------------
  * Additional Routing

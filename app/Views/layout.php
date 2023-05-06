@@ -28,12 +28,6 @@
           <li class="nav-item">
             <a class="nav-link" href="/users/list">List</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Update</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Delete</a>
-          </li>
         </ul>
       </div>
     </nav>
