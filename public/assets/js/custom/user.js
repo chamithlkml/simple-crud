@@ -5,14 +5,13 @@ $(document).ready(function() {
     ajax: '/users',
     processing: true,
     serverSide: true,
-    // dataSrc: 'data',
     columns: [
       { data: 'firstname' },
       { data: 'lastname' },
       { data: 'email' },
       { data: 'mobile' },
       { data: 'username' },
-      { data: 'action' },
+      { data: 'action', orderable: false },
     ]
   })
 

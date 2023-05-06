@@ -86,7 +86,7 @@ class UserLibrary{
     $this->userModel->db->table('users')->update($id, $data);
   }
 
-  public function getDataTableResponse(int $limit = 10, int $offset = 0, string $searchTerm = '',int $draw = 1): array
+  public function getDataTableResponse(int $limit = 10, int $offset = 0, string $searchTerm = '', int $draw = 1, int $orderColumnIndex, string $orderDirection): array
   {
     # Retrieve total number of users in a separate builder
     $recordsTotalRow = $this->userModel->db->table('users')
@@ -104,17 +104,33 @@ class UserLibrary{
     if($searchTerm != ''){
       $builder->like('firstname', $searchTerm);
       $builder->orLike('lastname', $searchTerm);
+      $builder->orLike('email', $searchTerm);
+      $builder->orLike('username', $searchTerm);
+      $builder->orLike('mobile', $searchTerm);
 
       # Retrieving filtered count in a separate builder
       $recordsFilteredRow = $this->userModel->db->table('users')
                                 ->like('firstname', $searchTerm)
                                 ->orLike('lastname', $searchTerm)
+                                ->orLike('email', $searchTerm)
+                                ->orLike('username', $searchTerm)
+                                ->orLike('mobile', $searchTerm)
                                 ->selectCount('*', 'num')
                                 ->get()->getRowArray();
 
     }
 
     $builder->where('deleted_at is NULL');
+
+    # columns shown in the Datatable following the same order from left to right
+    $columns = ['firstname', 'lastname', 'email', 'mobile', 'username'];
+
+    $orderColumn = $columns[$orderColumnIndex];
+
+    if(isset($orderColumn)){
+      $builder->orderBy($orderColumn, strtoupper($orderDirection));
+    }
+
     $builder->limit($limit, $offset);
     $users = $builder->get()->getResult();
 

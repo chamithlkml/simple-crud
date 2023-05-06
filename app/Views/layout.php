@@ -23,10 +23,10 @@
       <div class="collapse navbar-collapse" id="navbarText">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item">
-            <a class="nav-link" href="/users/create">Create</a>
+            <a class="nav-link" href="/users/create">Create a user</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="/users/list">List</a>
+            <a class="nav-link" href="/users/list">List users</a>
           </li>
         </ul>
       </div>

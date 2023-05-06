@@ -11,16 +11,19 @@ class UserController extends BaseController
 
     public function index(): object
     {
-
       $search = $this->request->getVar('search');
       $searchTerm = is_null($search) ? '' : $search['value'];
 
       $userLibrary = new UserLibrary();
+      $orderDetails = $this->request->getVar('order');
+
       $dataTablesResponse = $userLibrary->getDataTableResponse(
         intval($this->request->getVar('length')),
         intval($this->request->getVar('start')),
         $searchTerm,
-        intval($this->request->getVar('draw'))
+        intval($this->request->getVar('draw')),
+        $orderDetails[0]['column'],
+        $orderDetails[0]['dir']
       );
 
       return $this->response->setJSON($dataTablesResponse);
