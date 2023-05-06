@@ -40,11 +40,11 @@ class UserModel extends Model
     protected function hashPassword(array $data): array
     {
 
-        if(! isset($data['data']['password'])){
+        if (! isset($data['data']['password'])) {
             return $data;
         }
 
-        if(! isset($data['data']['salt'])){
+        if (! isset($data['data']['salt'])) {
             $data['data']['salt'] = password_hash(random_bytes(32), PASSWORD_BCRYPT);
         }
 

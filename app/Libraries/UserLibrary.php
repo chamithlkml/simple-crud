@@ -61,10 +61,11 @@ class UserLibrary{
    */
   public function getUserById(int $id)
   {
-    return $this->userModel->builder()
+    return $this->userModel
             ->select('id, firstname, lastname, email, mobile, username')
             ->where('role', 'user')
             ->where('id', $id)
+            ->where('deleted_at IS NULL')
             ->get()->getRowArray();
   }
 
@@ -76,14 +77,7 @@ class UserLibrary{
    */
   public function deleteUser(int $id): void
   {
-    $this->userModel->builder()
-        ->where('id', $id)
-        ->delete();
-  }
-
-  public function updateUser(int $id, array $data)
-  {
-    $this->userModel->db->table('users')->update($id, $data);
+    $this->userModel->delete($id);
   }
 
   public function getDataTableResponse(int $limit = 10, int $offset = 0, string $searchTerm = '', int $draw = 1, int $orderColumnIndex, string $orderDirection): array
