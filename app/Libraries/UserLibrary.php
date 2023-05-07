@@ -102,35 +102,39 @@ class UserLibrary
       # Retrieve total number of users in a separate builder
         $recordsTotalRow = $this->userModel->db->table('users')
                         ->selectCount('*', 'num')
+                        ->where('deleted_at IS NULL')
                         ->get()->getRowArray();
 
         $recordsFilteredRow = $recordsTotalRow;
 
       // main query builder
-        $builder = $this->userModel->builder()
+        $builder = $this->userModel->db->table('users')
                 ->select(
                     'id, firstname, lastname, email, mobile, username'
                 );
 
         if ($searchTerm != '') {
-            $builder->like('firstname', $searchTerm);
-            $builder->orLike('lastname', $searchTerm);
-            $builder->orLike('email', $searchTerm);
-            $builder->orLike('username', $searchTerm);
-            $builder->orLike('mobile', $searchTerm);
+            $builder->groupStart();
+              $builder->like('firstname', $searchTerm);
+              $builder->orLike('lastname', $searchTerm);
+              $builder->orLike('email', $searchTerm);
+              $builder->orLike('username', $searchTerm);
+              $builder->orLike('mobile', $searchTerm);
+            $builder->groupEnd();
 
           # Retrieving filtered count in a separate builder
             $recordsFilteredRow = $this->userModel->db->table('users')
-                                ->like('firstname', $searchTerm)
-                                ->orLike('lastname', $searchTerm)
-                                ->orLike('email', $searchTerm)
-                                ->orLike('username', $searchTerm)
-                                ->orLike('mobile', $searchTerm)
+                                ->groupStart()
+                                  ->like('firstname', $searchTerm)
+                                  ->orLike('lastname', $searchTerm)
+                                  ->orLike('email', $searchTerm)
+                                  ->orLike('username', $searchTerm)
+                                  ->orLike('mobile', $searchTerm)
+                                ->groupEnd()
+                                ->where('deleted_at IS NULL')
                                 ->selectCount('*', 'num')
                                 ->get()->getRowArray();
         }
-
-        $builder->where('deleted_at is NULL');
 
       # columns shown in the Datatable following the same order from left to right
         $columns = ['firstname', 'lastname', 'email', 'mobile', 'username'];
@@ -142,6 +146,8 @@ class UserLibrary
         }
 
         $builder->limit($limit, $offset);
+        $builder->where('deleted_at is NULL');
+
         $users = $builder->get()->getResult();
 
         foreach ($users as $user) {

@@ -53,8 +53,28 @@ class UserModel extends Model
         return $data;
     }
 
+    /**
+     * Adding a timestamp to the end of the username of deleting user just to allow adding 
+     * another user with the same username
+     *
+     * @param [type] $data
+     * @return array
+     */
+    protected function addTimestampToUsername($data): array
+    {
+        $usernameData = $this->select('username')
+            ->where('id', $data['id'][0])
+            ->get()->getRowArray();
+
+        $usernameData['username'] = $usernameData['username'] . '-'. time();
+        $this->update($data['id'][0], $usernameData);
+
+        return $data;
+    }
+
     // Callbacks
     protected $allowCallbacks = true;
     protected $beforeInsert   = ['hashPassword'];
     protected $beforeUpdate   = ['hashPassword'];
+    protected $beforeDelete   = ['addTimestampToUsername'];
 }
