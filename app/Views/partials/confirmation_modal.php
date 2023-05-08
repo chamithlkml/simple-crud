@@ -12,7 +12,7 @@
       </div>
       <div class="modal-footer">
         <?= form_open('', ['method' => 'POST', 'id' => 'confirmationForm']); ?>
-          <?= form_submit('submit', 'Delete', ['class' => 'btn btn-danger']); ?>
+          <button class="btn btn-danger ml-auto" type="submit">Submit</button>
         <?= form_close(); ?>
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
       </div>

@@ -18,6 +18,6 @@ class UserControllerTest extends CIUnitTestCase
         ->execute('create');
 
         $this->assertTrue($result->isOK());
-        $this->assertTrue($result->see('Add new user'));
+        $this->assertTrue($result->see('Create a new user'));
     }
 }
