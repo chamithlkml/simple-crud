@@ -103,6 +103,7 @@ class UserLibrary
         $recordsTotalRow = $this->userModel->db->table('users')
                         ->selectCount('*', 'num')
                         ->where('deleted_at IS NULL')
+                        ->where('role', 'user')
                         ->get()->getRowArray();
 
         $recordsFilteredRow = $recordsTotalRow;
@@ -131,6 +132,7 @@ class UserLibrary
                                   ->orLike('username', $searchTerm)
                                   ->orLike('mobile', $searchTerm)
                                 ->groupEnd()
+                                ->where('role', 'user')
                                 ->where('deleted_at IS NULL')
                                 ->selectCount('*', 'num')
                                 ->get()->getRowArray();
@@ -145,8 +147,9 @@ class UserLibrary
             $builder->orderBy($orderColumn, strtoupper($orderDirection));
         }
 
-        $builder->limit($limit, $offset);
+        $builder->where('role', 'user');
         $builder->where('deleted_at is NULL');
+        $builder->limit($limit, $offset);
 
         $users = $builder->get()->getResult();
 
