@@ -12,6 +12,14 @@ class Home extends BaseController
     public function index()
     {
         return view('layout', array(
+            'pageHeader' => 'Home',
+            'subTitle' => 'Dashboard',
+            'pageDescription' => 'Your dashboard',
+            'badge' => 'HOME',
+            'breadcrumbs' => [
+              'Home',
+              'Dashboard'
+            ],
             'page' => 'home/index'
         ));
     }
