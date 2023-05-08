@@ -9,7 +9,7 @@ class Home extends BaseController
      *
      * @return void
      */
-    public function index()
+    public function index(): string
     {
         return view('layout', array(
             'pageHeader' => 'Home',

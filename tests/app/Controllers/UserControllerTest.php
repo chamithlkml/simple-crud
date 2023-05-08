@@ -11,7 +11,12 @@ class UserControllerTest extends CIUnitTestCase
     use ControllerTestTrait;
     use DatabaseTestTrait;
 
-    public function testCreatePageLoadsOk()
+    /**
+     * Tests create page loads
+     *
+     * @return void
+     */
+    public function testCreatePageLoadsOk(): void
     {
         $result = $this->withURI('http://localhost/users/create')
         ->controller(\App\Controllers\UserController::class)

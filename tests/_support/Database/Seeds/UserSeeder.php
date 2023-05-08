@@ -8,7 +8,12 @@ use App\Models\UserModel;
 
 class UserSeeder extends Seeder
 {
-    public function run()
+    /**
+     * Run User seeds
+     *
+     * @return void
+     */
+    public function run(): void
     {
 
         $fakeUsers = self::generateFakeUserData(10);
@@ -20,6 +25,12 @@ class UserSeeder extends Seeder
         }
     }
 
+    /**
+     * Generate fake user data
+     *
+     * @param integer $count
+     * @return array
+     */
     public static function generateFakeUserData(int $count = 1): array
     {
         helper('text');

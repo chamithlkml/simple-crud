@@ -12,25 +12,55 @@ final class UserDatabaseTest extends CIUnitTestCase
 {
     use DatabaseTestTrait;
 
+    // For Migrations
+    protected $migrate     = true;
+    protected $migrateOnce = false;
+
+    // For Seeds
+    protected $seedOnce = true;
     protected $seed = UserSeeder::class;
 
-    public function testUserFindAll()
+    /**
+     * Manually seed data and check for user count
+     *
+     * @return void
+     */
+    public function testUserCount(): void
     {
         $userModel = new UserModel();
 
         //Get every row created by UserSeeder
-        $objects = $userModel->findAll();
+        $beforeAddingCount = count($userModel->findAll());
+
+        $fakeUsers = UserSeeder::generateFakeUserData(10);
+
+        foreach ($fakeUsers as $fakeUser) {
+            $userModel->insert($fakeUser);
+        }
+
+        $afterAddingCount = count($userModel->findAll());
 
         // Make sure the count is as expected
-        $this->assertCount(10, $objects);
+        $this->assertEquals(($beforeAddingCount + 10), $afterAddingCount);
     }
 
-    public function testSoftDeleteLeavesRow()
+    /**
+     * Tests whether soft deletes leaves the particular row
+     *
+     * @return void
+     */
+    public function testSoftDeleteLeavesRow(): void
     {
         $userModel = new UserModel();
 
-        /** @var stdClass $object */
-        $firstUser = $userModel->first();
+        $fakeUsers = UserSeeder::generateFakeUserData(1);
+
+        foreach ($fakeUsers as $fakeUser) {
+            $userModel->insert($fakeUser);
+        }
+
+        $users = $userModel->findAll();
+        $firstUser = $users[0];
         $userModel->delete($firstUser['id']);
 
         // The model should no longer find it

@@ -5,8 +5,6 @@ namespace Tests\Feature;
 use CodeIgniter\Test\FeatureTestTrait;
 use CodeIgniter\Test\CIUnitTestCase;
 use CodeIgniter\Test\DatabaseTestTrait;
-use App\Models\UserModel;
-use CodeIgniter\Test\Fabricator;
 use Tests\Support\Database\Seeds\UserSeeder;
 
 class UseFeatureTest extends CIUnitTestCase
@@ -18,7 +16,12 @@ class UseFeatureTest extends CIUnitTestCase
     protected $migrateOnce = true;
     protected $refresh     = true;
 
-    public function testCreateUser()
+    /**
+     * Test POST create user request
+     *
+     * @return void
+     */
+    public function testCreateUser(): void
     {
         $fakeUsers = UserSeeder::generateFakeUserData(1);
         $fakeUser = $fakeUsers[0];

@@ -2,7 +2,6 @@
 
 namespace App\Controllers;
 
-use App\Models\UserModel;
 use App\Libraries\UserLibrary;
 
 class UserController extends BaseController
