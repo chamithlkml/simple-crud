@@ -42,6 +42,14 @@ class UserController extends BaseController
     public function list(): string
     {
         return view('layout', array(
+          'pageHeader' => 'Admin',
+          'subTitle' => 'Lists users',
+          'pageDescription' => 'See users with pagination',
+          'badge' => 'USERS',
+          'breadcrumbs' => [
+            'User',
+            'List'
+          ],
           'page' => 'users/list',
           'additionalStylesheets' => [
               base_url('assets/css/jquery.dataTables.css')
@@ -61,6 +69,14 @@ class UserController extends BaseController
     public function create(): string
     {
         return view('layout', array(
+            'pageHeader' => 'Admin',
+            'subTitle' => 'Create a new user',
+            'pageDescription' => 'Fill the following form to create a new user',
+            'badge' => 'NEW USER',
+            'breadcrumbs' => [
+              'User',
+              'New'
+            ],
             'page' => 'users/create',
             'action' => base_url('users/store'),
             'formId' => 'userForm',
@@ -92,6 +108,14 @@ class UserController extends BaseController
             unset($data['password']);
 
             return view('layout', array(
+                'pageHeader' => 'Admin',
+                'subTitle' => 'Create a new user',
+                'pageDescription' => 'Fill the following form to create a new user',
+                'badge' => 'NEW USER',
+                'breadcrumbs' => [
+                  'User',
+                  'New'
+                ],
                 'page' => 'users/create',
                 'action' => 'users/store',
                 'formId' => 'userForm',
@@ -161,10 +185,18 @@ class UserController extends BaseController
             return redirect()->to(base_url('users/list'));
         } else {
             return view('layout', array(
-              'page' => 'users/update',
-              'action' => base_url("users/{$id}/put"),
-              'formId' => 'userForm',
-              'data' => $foundUser
+                'pageHeader' => 'Admin',
+                'subTitle' => 'Updates a user',
+                'pageDescription' => 'Fill the following form to update the user',
+                'badge' => 'UPDATE USER',
+                'breadcrumbs' => [
+                  'User',
+                  'Update'
+                ],
+                'page' => 'users/update',
+                'action' => base_url("users/{$id}/put"),
+                'formId' => 'userForm',
+                'data' => $foundUser
             ));
         }
     }
@@ -205,6 +237,14 @@ class UserController extends BaseController
                 unset($data['password']);
 
                 return view('layout', array(
+                'pageHeader' => 'Admin',
+                'subTitle' => 'Updates a user',
+                'pageDescription' => 'Fill the following form to update the user',
+                'badge' => 'UPDATE USER',
+                'breadcrumbs' => [
+                  'User',
+                  'Update'
+                ],
                 'page' => 'users/update',
                 'action' => base_url("users/{$id}/put"),
                 'formId' => 'userForm',

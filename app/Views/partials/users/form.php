@@ -11,7 +11,7 @@
 
 <?= form_open($action, array('novalidate' => true, 'class' => 'needs-validation', 'id' => $formId )); ?>
   <div class="form-group">
-    <?= form_label('First Name', 'firstname'); ?>
+    <?= form_label('First Name', 'firstname', array('class' => 'form-label')); ?>
     <?= form_input(['type' => 'text', 'name' => 'firstname', 'class' => 'form-control', 'id' => 'firstname', 'aria-describedby' => 'First name', 'placeholder' => "First name here", 'required' => true], $data['firstname'] ?? '') ?>
     <div class="invalid-feedback">Please enter a first name</div>
   </div>
@@ -40,5 +40,5 @@
     <?= form_password(['class' => 'form-control', 'name' => 'password', 'id' => 'password', 'aria-describedby' => 'Password', 'minlength' => "6", 'placeholder' => "Password here", 'required' => true]) ?>
     <div class="invalid-feedback">Please enter a password with minimum 6 length</div>
   </div>
-  <?= form_submit('submit', 'Submit', ['class' => 'btn btn-primary']); ?>
+  <button class="btn btn-primary ml-auto" type="submit">Submit</button>
 <?= form_close(); ?>
