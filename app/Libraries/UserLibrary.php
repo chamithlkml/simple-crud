@@ -51,7 +51,21 @@ class UserLibrary
    */
     public function saveUser(array $data): int
     {
-        return $this->userModel->save($data);
+        if (isset($data['id'])) {
+            $this->userModel->db->transException(true)->transStart();
+            $id = $data['id'];
+            unset($data['id']);
+            $result = $this->userModel->db->table('users')->where('id', $id)->update($data);
+            $this->userModel->db->transComplete();
+
+            return $result;
+        } else {
+            $this->userModel->db->transStart();
+            $result = $this->userModel->db->table('users')->insert($data);
+            $this->userModel->db->transComplete();
+
+            return $result;
+        }
     }
 
   /**
@@ -77,7 +91,9 @@ class UserLibrary
    */
     public function deleteUser(int $id): void
     {
-        $this->userModel->delete($id);
+        $this->userModel->db->transException(true)->transStart();
+        $this->userModel->db->table('users')->delete(['id' => $id]);
+        $this->userModel->db->transComplete();
     }
 
     /**

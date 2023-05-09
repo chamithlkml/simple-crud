@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Libraries\UserLibrary;
+use CodeIgniter\Database\Exceptions\DatabaseException;
 
 class UserController extends BaseController
 {
@@ -122,15 +123,22 @@ class UserController extends BaseController
                 'data' => $data
             ));
         } else {
-            $savedUserId = $userLibrary->saveUser($data);
-            $session = session();
+            try {
+                $savedUserId = $userLibrary->saveUser($data);
 
-            if (is_int($savedUserId)) {
-                $session->setFlashdata('success', 'User added successfully');
+                $session = session();
 
-                return redirect()->to(base_url('users/list'));
-            } else {
-                $session->setFlashdata('error', 'User not inserted. Please try again.');
+                if (is_int($savedUserId)) {
+                    $session->setFlashdata('success', 'User added successfully');
+
+                    return redirect()->to(base_url('users/list'));
+                } else {
+                    $session->setFlashdata('error', 'User not inserted. Please try again.');
+
+                    return redirect()->to(base_url('users/create'));
+                }
+            } catch (DatabaseException $e) {
+                $session->setFlashdata('error', $e->getMessage());
 
                 return redirect()->to(base_url('users/create'));
             }
@@ -150,14 +158,18 @@ class UserController extends BaseController
         $session = session();
 
         if ($foundUser) {
-            $userLibrary->deleteUser($id);
+            try {
+                $userLibrary->deleteUser($id);
 
-            $deletedUser = $userLibrary->getUserById($id);
+                $deletedUser = $userLibrary->getUserById($id);
 
-            if (! isset($deletedUser)) {
-                $session->setFlashdata('success', 'User is deleted successfully');
-            } else {
-                $session->setFlashdata('error', 'User not deleted. Please try again.');
+                if (! isset($deletedUser)) {
+                    $session->setFlashdata('success', 'User is deleted successfully');
+                } else {
+                    $session->setFlashdata('error', 'User not deleted. Please try again.');
+                }
+            } catch (DatabaseException $e) {
+                $session->setFlashdata('error', $e->getMessage());
             }
         } else {
             $session->setFlashdata('error', 'User not found. Please try again.');
@@ -252,10 +264,16 @@ class UserController extends BaseController
                 ));
             } else {
                 $data['id'] = $id;
-                $userLibrary->saveUser($data);
-                $session->setFlashdata('success', 'User updated successfully');
 
-                return redirect()->to(base_url('users/list'));
+                try {
+                    $userLibrary->saveUser($data);
+                    $session->setFlashdata('success', 'User updated successfully');
+
+                    return redirect()->to(base_url('users/list'));
+                } catch (DatabaseException $e) {
+                    $session->setFlashdata('error', $e->getMessage());
+                    return redirect()->to(base_url('users/list'));
+                }
             }
         }
     }
