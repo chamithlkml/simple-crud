@@ -96,7 +96,7 @@
                 <!-- BEGIN Left Aside -->
                 <aside class="page-sidebar">
                     <div class="page-logo">
-                        <a href="#" class="page-logo-link press-scale-down d-flex align-items-center position-relative" data-toggle="modal" data-target="#modal-shortcut">
+                        <a href="/" class="page-logo-link press-scale-down d-flex align-items-center position-relative" data-toggle="modal" data-target="#modal-shortcut">
                             <img src="<?= base_url('img/logo.png') ?>" alt="Sample App" aria-roledescription="logo">
                             <span class="page-logo-text mr-1">Sample App</span>
                             <span class="position-absolute text-white opacity-50 small pos-top pos-right mr-2 mt-n2"></span>
@@ -116,7 +116,7 @@
                         <div class="info-card">
                             <img src="<?= base_url('img/demo/avatars/avatar-admin.png') ?>" class="profile-image rounded-circle" alt="Dr. Codex Lantern">
                             <div class="info-card-text">
-                                <a href="#" class="d-flex align-items-center text-white">
+                                <a href="/" class="d-flex align-items-center text-white">
                                     <span class="text-truncate text-truncate-sm d-inline-block">
                                         Sample App
                                     </span>
