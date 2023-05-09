@@ -17,7 +17,12 @@ composer -V
 - `composer install`
 - `docker compose up -d`
 - `docker exec -i app sh -c 'php spark migrate'`
-- Navigate to http://localhost to view the app
+
+## Running the unit tests
+- `docker exec -i app sh -c './vendor/bin/phpunit'`
+
+## View App
+Navigate to http://localhost
 
 ### Home page
 ![Home page](screenshots/home-page.png)
@@ -55,6 +60,6 @@ In order to see the pagination of the Datatable please execute the below command
 ![Search Results](screenshots/search-results.png)
 
 ### Important
-- This app uses Soft Delete
+- This app uses Soft Delete option
 - `username` field is unique
 - `mobile` field must be 11 digits long
